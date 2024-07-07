@@ -11,8 +11,6 @@ import (
 )
 
 const (
-	WindowWidth     = 1280
-	WindowHeight    = 720
 	WindowTargetFPS = 60
 	WindowTitle     = "Project Kat"
 
@@ -50,13 +48,14 @@ func setupWorld() {
 	entities.PlayerEntity = entities.NewPlayer(startingPos)
 	entities.PlayerGunEntity = entities.NewPlayerGun(entities.PlayerEntity, rl.NewVector2(0, 0))
 
-	entities.ZombieEntities = []*entities.Zombie{
-		entities.NewZombie(rl.NewVector2(100, 100)),
-	}
+	levelWidth := levels.WorldLevelData.TileWidth * levels.WorldLevelData.Width
+	entities.CameraHandlerEntity = entities.NewCameraHandler(entities.PlayerEntity, levelWidth)
+
+	spawnZombies()
 }
 
 func setupWindow() {
-	rl.InitWindow(WindowWidth, WindowHeight, WindowTitle)
+	rl.InitWindow(shared.WindowWidth, shared.WindowHeight, WindowTitle)
 
 	rl.SetTargetFPS(WindowTargetFPS)
 	rl.SetExitKey(WindowExitKey)
@@ -65,7 +64,11 @@ func setupWindow() {
 }
 
 func update() {
+
 	rl.BeginDrawing()
+
+	rl.BeginMode2D(entities.CameraHandlerEntity.Camera)
+	entities.CameraHandlerEntity.Update()
 
 	rl.ClearBackground(WindowBackgroundColor)
 
@@ -80,6 +83,8 @@ func update() {
 		zombie.Update()
 		zombie.Render()
 	}
+
+	rl.EndMode2D()
 
 	if shared.IsDebugMode() {
 		renderFPS()
@@ -105,5 +110,14 @@ func handleDebugMode() {
 		}
 
 		os.Setenv(shared.DebugModeEnvironmentVariable, newDebugState)
+	}
+}
+
+func spawnZombies() {
+	zombiePositions := levels.GetZombieSpawnerPositions(levels.WorldColliderData)
+	entities.ZombieEntities = make([]*entities.Zombie, len(zombiePositions))
+
+	for index, position := range zombiePositions {
+		entities.ZombieEntities[index] = entities.NewZombie(position)
 	}
 }

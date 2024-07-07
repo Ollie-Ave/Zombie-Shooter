@@ -11,16 +11,26 @@ import (
 
 func RenderLevelData(levelData *LevelData, colliderData *LevelColliderData) {
 	for layerIndex, layer := range levelData.Layers {
-		renderTileLayer(layer, levelData)
-
-		if shared.IsDebugMode() &&
-			strings.Contains(layer.Name, "Collidable_") {
-
-			renderCollisionData(
-				colliderData.colliderLayers[layerIndex],
-				rl.NewVector2(float32(levelData.TileWidth), float32(levelData.TileHeight)),
-			)
+		if !strings.Contains(layer.Name, "Spawner_") {
+			renderTileLayer(layer, levelData)
 		}
+
+		if shared.IsDebugMode() {
+			renderDebugDataForLayer(layer, layerIndex, levelData, colliderData)
+		}
+	}
+}
+
+func renderDebugDataForLayer(layer *Layer, layerIndex int, levelData *LevelData, colliderData *LevelColliderData) {
+	if strings.Contains(layer.Name, "Spawner_") {
+		renderTileLayer(layer, levelData)
+	}
+
+	if strings.Contains(layer.Name, "Collidable_") {
+		renderCollisionData(
+			colliderData.ColliderLayers[layerIndex],
+			rl.NewVector2(float32(levelData.TileWidth), float32(levelData.TileHeight)),
+		)
 	}
 }
 
@@ -50,7 +60,7 @@ func renderTileLayer(layer *Layer, levelData *LevelData) {
 }
 
 func renderCollisionData(layer *ColliderLayer, tileSize rl.Vector2) {
-	for x, col := range layer.data {
+	for x, col := range layer.Data {
 		for y, value := range col {
 			if value {
 				xPos := int32(x * int(tileSize.X))

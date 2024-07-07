@@ -72,6 +72,10 @@ func (p *Player) Render() {
 		rl.Red)
 }
 
+func (p *Player) GetHitbox() rl.Rectangle {
+	return p.getHitboxForPosition(p.Position)
+}
+
 func (p *Player) getHitboxForPosition(position rl.Vector2) rl.Rectangle {
 	return rl.NewRectangle(
 		position.X,

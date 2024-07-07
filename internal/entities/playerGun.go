@@ -50,7 +50,8 @@ func (p *PlayerGun) updateBullets() {
 func (p *PlayerGun) updateGun() {
 	if rl.IsMouseButtonPressed(rl.MouseButtonLeft) {
 		absolutePositon := p.getAbsolutePosition()
-		mousePos := rl.GetMousePosition()
+
+		mousePos := rl.GetScreenToWorld2D(rl.GetMousePosition(), CameraHandlerEntity.Camera)
 
 		mouseDirection := rl.Vector2Normalize(rl.Vector2Subtract(absolutePositon, mousePos))
 
@@ -71,7 +72,7 @@ func (p *PlayerGun) renderBullets() {
 func (p *PlayerGun) renderGun() {
 	absolutePositon := p.getAbsolutePosition()
 
-	mousePos := rl.GetMousePosition()
+	mousePos := rl.GetScreenToWorld2D(rl.GetMousePosition(), CameraHandlerEntity.Camera)
 
 	mouseDirection := rl.Vector2Normalize(rl.Vector2Subtract(absolutePositon, mousePos))
 	rotationAngle := calcuateAngleForDirectionVector(mouseDirection)
