@@ -78,5 +78,8 @@ func (c *CameraHandler) Update() {
 	deltaTime := rl.GetFrameTime()
 
 	c.Camera.Target.X += c.velocity.X * deltaTime
+	c.Camera.Target.X = float32(int(c.Camera.Target.X))
+
 	c.Camera.Target.Y += c.velocity.Y * deltaTime
+	c.Camera.Target.Y = float32(int(c.Camera.Target.Y))
 }
