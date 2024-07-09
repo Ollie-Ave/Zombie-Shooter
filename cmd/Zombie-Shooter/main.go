@@ -12,7 +12,7 @@ import (
 
 const (
 	WindowTargetFPS = 60
-	WindowTitle     = "Project Kat"
+	WindowTitle     = "Zombie Shooter"
 
 	WindowExitKey = rl.KeyCapsLock
 )
