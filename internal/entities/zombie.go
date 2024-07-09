@@ -42,14 +42,7 @@ func (z *Zombie) Update() {
 	playerHitboxPos := getHitboxCenter(PlayerEntity.GetHitbox())
 	zombieHitboxPos := getHitboxCenter(z.GetHitbox())
 
-	var movementDirection rl.Vector2
-	if z.canSeePlayer(zombieHitboxPos, playerHitboxPos) {
-		movementDirection = rl.Vector2Normalize(rl.Vector2Subtract(playerHitboxPos, zombieHitboxPos))
-
-		z.lastSeenPlayerPosition = playerHitboxPos
-	} else {
-		movementDirection = rl.Vector2Normalize(rl.Vector2Subtract(z.lastSeenPlayerPosition, zombieHitboxPos))
-	}
+	movementDirection := z.getMovementDirection(zombieHitboxPos, playerHitboxPos)
 
 	z.position = z.getNextPosition(movementDirection)
 }
@@ -138,7 +131,7 @@ func (z *Zombie) getNextPosition(direction rl.Vector2) rl.Vector2 {
 	nextPosition.Y += nextPositionYDiff
 	nextHitboxPosition := z.getHitboxForPosition(nextPosition)
 
-	if levels.HitboxCollidesWithWorld(nextHitboxPosition) {
+	if levels.HitboxCollidesWithWorld(nextHitboxPosition) || z.hitboxcollideswithotherzombies(nextHitboxPosition) {
 		nextPosition.Y -= nextPositionYDiff
 	}
 
@@ -146,9 +139,37 @@ func (z *Zombie) getNextPosition(direction rl.Vector2) rl.Vector2 {
 	nextPosition.X += nextPositionXDiff
 	nextHitboxPosition = z.getHitboxForPosition(nextPosition)
 
-	if levels.HitboxCollidesWithWorld(nextHitboxPosition) {
+	if levels.HitboxCollidesWithWorld(nextHitboxPosition) || z.hitboxcollideswithotherzombies(nextHitboxPosition) {
 		nextPosition.X -= nextPositionXDiff
 	}
 
 	return nextPosition
+}
+
+func (z *Zombie) hitboxcollideswithotherzombies(nextHitboxPosition rl.Rectangle) bool {
+	for _, otherZombie := range ZombieEntities {
+		if otherZombie == z {
+			continue
+		}
+
+		if rl.CheckCollisionRecs(nextHitboxPosition, otherZombie.GetHitbox()) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (z *Zombie) getMovementDirection(zombieHitboxPos, playerHitboxPos rl.Vector2) rl.Vector2 {
+	var movementDirection rl.Vector2
+
+	if z.canSeePlayer(zombieHitboxPos, playerHitboxPos) {
+		movementDirection = rl.Vector2Normalize(rl.Vector2Subtract(playerHitboxPos, zombieHitboxPos))
+
+		z.lastSeenPlayerPosition = playerHitboxPos
+	} else {
+		movementDirection = rl.Vector2Normalize(rl.Vector2Subtract(z.lastSeenPlayerPosition, zombieHitboxPos))
+	}
+
+	return movementDirection
 }
