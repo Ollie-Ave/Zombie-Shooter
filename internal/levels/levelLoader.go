@@ -8,8 +8,8 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
-const (
-	assetsPath = "/home/oliver/Code/Zombie-Shooter/assets"
+var (
+	assetsPath = os.Getenv("ASSETS_PATH")
 )
 
 func LoadLevelData(filePath string) (*LevelData, error) {
