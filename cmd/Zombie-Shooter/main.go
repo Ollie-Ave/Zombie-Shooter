@@ -19,7 +19,6 @@ const (
 
 var (
 	WindowBackgroundColor = rl.LightGray
-	Round                 = 0
 )
 
 func main() {
@@ -33,28 +32,6 @@ func main() {
 	rl.CloseWindow()
 }
 
-func setupWorld() {
-	var err error
-
-	levels.WorldLevelData, err = levels.LoadLevelData("test_level.json")
-
-	if err != nil {
-		panic(err)
-	}
-
-	levels.WorldColliderData = levels.LoadWorldColliderData(levels.WorldLevelData)
-
-	startingPos := rl.NewVector2(200, 350)
-
-	entities.PlayerEntity = entities.NewPlayer(startingPos)
-	entities.PlayerGunEntity = entities.NewPlayerGun(entities.PlayerEntity, rl.NewVector2(0, 0))
-
-	levelWidth := levels.WorldLevelData.TileWidth * levels.WorldLevelData.Width
-	entities.CameraHandlerEntity = entities.NewCameraHandler(entities.PlayerEntity, levelWidth)
-
-	spawnZombies()
-}
-
 func setupWindow() {
 	rl.InitWindow(shared.WindowWidth, shared.WindowHeight, WindowTitle)
 
@@ -65,19 +42,6 @@ func setupWindow() {
 }
 
 func update() {
-
-	allZombiesDead := true
-
-	for _, zombie := range entities.ZombieEntities {
-		if zombie.IsAlive() {
-			allZombiesDead = false
-			break
-		}
-	}
-
-	if allZombiesDead {
-		spawnZombies()
-	}
 
 	rl.BeginDrawing()
 
@@ -132,18 +96,5 @@ func handleDebugMode() {
 		}
 
 		os.Setenv(shared.DebugModeEnvironmentVariable, newDebugState)
-	}
-}
-
-func spawnZombies() {
-	Round++
-
-	zombiePositions := levels.GetZombieSpawnerPositions(levels.WorldColliderData)
-	entities.ZombieEntities = make([]*entities.Zombie, len(zombiePositions))
-
-	for index, position := range zombiePositions {
-		zombieHealth := 1 + Round/3
-
-		entities.ZombieEntities[index] = entities.NewZombie(position, zombieHealth)
 	}
 }
