@@ -9,7 +9,6 @@ import (
 const (
 	ZombieWidth         = 16
 	ZombieHeight        = 16
-	ZombieMaxHealth     = 10
 	ZombieMovementSpeed = 50
 )
 
@@ -21,13 +20,17 @@ type Zombie struct {
 	health int
 }
 
-func NewZombie(position rl.Vector2) *Zombie {
+func NewZombie(position rl.Vector2, startingHealth int) *Zombie {
 	return &Zombie{
 		position:               position,
 		lastSeenPlayerPosition: position,
-		health:                 ZombieMaxHealth,
+		health:                 startingHealth,
 		alive:                  true,
 	}
+}
+
+func (z *Zombie) IsAlive() bool {
+	return z.alive
 }
 
 func (z *Zombie) Update() {

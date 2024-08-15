@@ -19,6 +19,7 @@ const (
 
 var (
 	WindowBackgroundColor = rl.LightGray
+	Round                 = 0
 )
 
 func main() {
@@ -65,6 +66,19 @@ func setupWindow() {
 
 func update() {
 
+	allZombiesDead := true
+
+	for _, zombie := range entities.ZombieEntities {
+		if zombie.IsAlive() {
+			allZombiesDead = false
+			break
+		}
+	}
+
+	if allZombiesDead {
+		spawnZombies()
+	}
+
 	rl.BeginDrawing()
 
 	rl.BeginMode2D(entities.CameraHandlerEntity.Camera)
@@ -86,6 +100,8 @@ func update() {
 
 	rl.EndMode2D()
 
+	renderUI()
+
 	if shared.IsDebugMode() {
 		renderFPS()
 	}
@@ -95,10 +111,16 @@ func update() {
 	handleDebugMode()
 }
 
+func renderUI() {
+	fpsText := fmt.Sprintf("Round: %d", Round)
+
+	rl.DrawText(fpsText, 10, 10, 20, rl.White)
+}
+
 func renderFPS() {
 	fpsText := fmt.Sprintf("FPS: %d", rl.GetFPS())
 
-	rl.DrawText(fpsText, 10, 10, 20, rl.White)
+	rl.DrawText(fpsText, 10, 30, 20, rl.White)
 }
 
 func handleDebugMode() {
@@ -114,10 +136,14 @@ func handleDebugMode() {
 }
 
 func spawnZombies() {
+	Round++
+
 	zombiePositions := levels.GetZombieSpawnerPositions(levels.WorldColliderData)
 	entities.ZombieEntities = make([]*entities.Zombie, len(zombiePositions))
 
 	for index, position := range zombiePositions {
-		entities.ZombieEntities[index] = entities.NewZombie(position)
+		zombieHealth := 1 + Round/3
+
+		entities.ZombieEntities[index] = entities.NewZombie(position, zombieHealth)
 	}
 }
